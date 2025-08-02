@@ -4,7 +4,9 @@ RUN apt-get update && \
     apt-get install -y bash sudo grep curl vim python3 && \
     apt-get clean
 
-RUN mkdir -p /etc/application
+RUN mkdir -p /etc/application && \
+    mkdir -p /var/log/mockdb && \
+    chmod 755 /var/log/mockdb
 COPY files/db.conf /etc/application/db.conf
 COPY files/mock_systemctl.sh /usr/local/bin/systemctl
 COPY files/start.sh /usr/local/bin/start.sh
@@ -17,7 +19,7 @@ RUN chown root:root /etc/application/db.conf && chmod 444 /etc/application/db.co
 RUN useradd -m -s /bin/bash student && \
     usermod -aG sudo student && \
     echo 'student ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/010-student-nopasswd
-    
+
 RUN chown student:student /home/student/.bashrc
 
 USER student
