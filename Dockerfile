@@ -6,7 +6,9 @@ RUN apt-get update && \
 
 RUN mkdir -p /etc/application && \
     mkdir -p /var/log/mockdb && \
-    chmod 755 /var/log/mockdb
+    chmod 755 /var/log/mockdb && \
+    chown student:student /var/log/mockdb
+    
 COPY files/db.conf /etc/application/db.conf
 COPY files/mock_systemctl.sh /usr/local/bin/systemctl
 COPY files/start.sh /usr/local/bin/start.sh
