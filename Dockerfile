@@ -13,11 +13,12 @@ COPY files/mock_server.py /usr/local/bin/mock_server.py
 
 RUN chmod +x /usr/local/bin/systemctl /usr/local/bin/start.sh /usr/local/bin/mock_server.py
 RUN chown root:root /etc/application/db.conf && chmod 444 /etc/application/db.conf
-RUN chown student:student /home/student/.bashrc
 
 RUN useradd -m -s /bin/bash student && \
     usermod -aG sudo student && \
     echo 'student ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/010-student-nopasswd
+    
+RUN chown student:student /home/student/.bashrc
 
 USER student
 WORKDIR /home/student
