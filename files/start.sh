@@ -7,4 +7,3 @@ echo "🔹 Oops! No write permissions?"
 echo "🔹 Fix permissions → change port → revert if needed"
 echo "🔹 After editing, run: systemctl restart db"
 echo ""
-bash
