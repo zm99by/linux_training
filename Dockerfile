@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 
 RUN apt-get update && \
-    apt-get install -y bash sudo grep curl vim-tiny python3 && \
+    apt-get install -y bash sudo grep curl vim python3 && \
     apt-get clean
 
 RUN mkdir -p /etc/application

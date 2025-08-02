@@ -11,8 +11,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if PORT == 5432:
             message = "🎉 Congrats! The service is now running on the correct port.<br>"
-            secret = base64.b64encode(b"supersecretpassword123").decode()
-            html = f"<html><body>{message}<hr><b>🔐 Secret:</b> {secret}</body></html>"
+            secret = base64.b64encode(b"Do one thing well.").decode()
+            html = f"<html><body>{message}<hr><b>🔐 Secret is:</b> {secret}</body></html>"
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
