@@ -3,11 +3,11 @@ set -e
 
 CMD="$1"
 SERVICE="$2"
+
 CONF_FILE="/etc/application/db.conf"
 SERVER_SCRIPT="/usr/local/bin/mock_server.py"
 PID_FILE="/var/log/mockdb/mock_server.pid"
 LOG_FILE="/var/log/mockdb/mock_server.log"
-
 
 usage() {
   echo "Usage: systemctl [start|stop|restart|status] db"
@@ -29,39 +29,59 @@ clean_stale_pid() {
 
 start_service() {
   clean_stale_pid
+
   if is_running; then
-    echo "⚠️ Service already running (PID: $(cat "$PID_FILE"))"
+    echo "Starting db.service..."
+    echo "[  OK  ] db.service already running (PID: $(cat "$PID_FILE"))"
     return
   fi
 
   PORT=$(get_port)
   if [[ -z "$PORT" ]]; then
-    echo "❌ Port not found in config"
+    echo "[FAILED] No port found in config"
     exit 1
   fi
 
-  nohup python3 "$SERVER_SCRIPT" "$PORT" >/dev/null 2>&1 &
+  mkdir -p "$(dirname "$PID_FILE")"
+  nohup python3 "$SERVER_SCRIPT" "$PORT" > "$LOG_FILE" 2>&1 &
   echo $! > "$PID_FILE"
-  echo "✅ Service db started on port $PORT"
+  sleep 0.3
+
+  if ! is_running; then
+    echo "[FAILED] Failed to start db.service. Check $LOG_FILE"
+    rm -f "$PID_FILE"
+    exit 1
+  fi
+
+  echo "Starting db.service..."
+  echo "[  OK  ] Started db.service"
 }
 
 stop_service() {
   if is_running; then
     kill "$(cat "$PID_FILE")" && rm -f "$PID_FILE"
-    echo "🛑 Service db stopped"
+    echo "Stopping db.service..."
+    echo "[  OK  ] Stopped db.service"
   else
-    echo "⚠️ Service not running"
-    rm -f "$PID_FILE"  # удалить устаревший PID-файл, если он остался
+    echo "Stopping db.service..."
+    echo "[WARNING] db.service is not running"
+    rm -f "$PID_FILE" 2>/dev/null || true
   fi
 }
 
 status_service() {
+  echo "● db.service - Mock Database Service"
+  echo "   Loaded: loaded ($SERVER_SCRIPT; enabled)"
+
   if is_running; then
+    PID=$(cat "$PID_FILE")
     PORT=$(get_port)
-    echo "✅ Service db is running (port $PORT, PID: $(cat "$PID_FILE"))"
+    echo "   Active: active (running)"
+    echo "   Main PID: $PID (python3)"
+    echo "   Port: $PORT"
+    echo "   Logs: $LOG_FILE"
   else
-    echo "🛑 Service db is not running on correct port"
-    clean_stale_pid
+    echo "   Active: inactive (dead)"
   fi
 }
 
@@ -79,7 +99,7 @@ case "$CMD" in
     [[ "$SERVICE" == "db" ]] && status_service || (usage; exit 2)
     ;;
   *)
-    echo "systemctl: unknown command"
+    echo "systemctl: unknown command: $CMD"
     usage
     exit 2
     ;;
