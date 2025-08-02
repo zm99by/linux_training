@@ -60,7 +60,7 @@ status_service() {
     PORT=$(get_port)
     echo "✅ Service db is running (port $PORT, PID: $(cat "$PID_FILE"))"
   else
-    echo "🛑 Service db is not running"
+    echo "🛑 Service db is not running on correct port"
     clean_stale_pid
   fi
 }
