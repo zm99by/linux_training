@@ -19,7 +19,7 @@ RUN useradd -m -s /bin/bash student && \
 
 USER student
 WORKDIR /home/student
-COPY files/student.bashrc /home/student/.bashrc
-RUN chown student:student /home/student/.bashrc
+RUN cat files/student.bashrc > /home/student/.bashrc && \
+    chown student:student /home/student/.bashrc
 
 CMD ["/usr/local/bin/start.sh"]
