@@ -21,7 +21,7 @@ Hints:
   • Check the config file permissions
   • Test it: curl http://localhost:5432
 
-📘 Note: The server must be running on port 5432 to return a secret sentence.
+📘 Note: The server must be running on correct port to return a secret sentence.
 
 Good luck!
 MSG
