@@ -5,7 +5,9 @@ CMD="$1"
 SERVICE="$2"
 CONF_FILE="/etc/application/db.conf"
 SERVER_SCRIPT="/usr/local/bin/mock_server.py"
-PID_FILE="/tmp/mock_server.pid"
+PID_FILE="/var/log/mockdb/mock_server.pid"
+LOG_FILE="/var/log/mockdb/mock_server.log"
+
 
 usage() {
   echo "Usage: systemctl [start|stop|restart|status] db"
