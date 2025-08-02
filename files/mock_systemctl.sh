@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -e
 
 CMD="$1"
@@ -16,16 +15,27 @@ get_port() {
   grep -E '^[[:space:]]*port[[:space:]]*=' "$CONF_FILE" | cut -d= -f2 | tr -d '[:space:]'
 }
 
+is_running() {
+  [[ -f "$PID_FILE" ]] && ps -p "$(cat "$PID_FILE")" > /dev/null 2>&1
+}
+
+clean_stale_pid() {
+  if [[ -f "$PID_FILE" ]] && ! is_running; then
+    rm -f "$PID_FILE"
+  fi
+}
+
 start_service() {
+  clean_stale_pid
+  if is_running; then
+    echo "⚠️ Service already running (PID: $(cat "$PID_FILE"))"
+    return
+  fi
+
   PORT=$(get_port)
   if [[ -z "$PORT" ]]; then
     echo "❌ Port not found in config"
     exit 1
-  fi
-
-  if [[ -f "$PID_FILE" ]]; then
-    echo "⚠️ Service already running (PID: $(cat "$PID_FILE"))"
-    return
   fi
 
   nohup python3 "$SERVER_SCRIPT" "$PORT" >/dev/null 2>&1 &
@@ -34,48 +44,37 @@ start_service() {
 }
 
 stop_service() {
-  if [[ -f "$PID_FILE" ]]; then
+  if is_running; then
     kill "$(cat "$PID_FILE")" && rm -f "$PID_FILE"
     echo "🛑 Service db stopped"
   else
     echo "⚠️ Service not running"
+    rm -f "$PID_FILE"  # удалить устаревший PID-файл, если он остался
   fi
 }
 
 status_service() {
-  if [[ -f "$PID_FILE" ]]; then
-    if ps -p "$(cat "$PID_FILE")" > /dev/null 2>&1; then
-      PORT=$(get_port)
-      echo "✅ Service db is running (port $PORT)"
-    else
-      echo "⚠️ PID file exists but process is not running"
-    fi
+  if is_running; then
+    PORT=$(get_port)
+    echo "✅ Service db is running (port $PORT, PID: $(cat "$PID_FILE"))"
   else
     echo "🛑 Service db is not running"
+    clean_stale_pid
   fi
 }
 
 case "$CMD" in
   start)
-    if [[ "$SERVICE" == "db" ]]; then
-      start_service
-    else usage; exit 2; fi
+    [[ "$SERVICE" == "db" ]] && start_service || (usage; exit 2)
     ;;
   stop)
-    if [[ "$SERVICE" == "db" ]]; then
-      stop_service
-    else usage; exit 2; fi
+    [[ "$SERVICE" == "db" ]] && stop_service || (usage; exit 2)
     ;;
   restart)
-    if [[ "$SERVICE" == "db" ]]; then
-      stop_service
-      start_service
-    else usage; exit 2; fi
+    [[ "$SERVICE" == "db" ]] && { stop_service; start_service; } || (usage; exit 2)
     ;;
   status)
-    if [[ "$SERVICE" == "db" ]]; then
-      status_service
-    else usage; exit 2; fi
+    [[ "$SERVICE" == "db" ]] && status_service || (usage; exit 2)
     ;;
   *)
     echo "systemctl: unknown command"
@@ -83,4 +82,3 @@ case "$CMD" in
     exit 2
     ;;
 esac
-exit 0
