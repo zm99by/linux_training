@@ -24,9 +24,7 @@ RUN cp /usr/local/setup/db.conf /etc/application/db.conf && \
 RUN useradd -m -s /bin/bash student && \
     usermod -aG sudo student && \
    # echo 'student ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/010-student-nopasswd && \
-    chown student:student /var/log/mockdb && \
-    chown /etc/application/db.conf student:student && \
-    chmod 644 /etc/application/db.conf
+    chown student:student /var/log/mockdb
 
 RUN cp /usr/local/setup/student.bashrc /home/student/.bashrc && \
     chown student:student /home/student/.bashrc
