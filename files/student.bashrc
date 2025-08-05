@@ -9,7 +9,6 @@ if [[ $- == *i* ]]; then
 
 👋 Welcome to the Linux CLI Training Lab!
 
-
 Your task:
   🔹 Locate the application configuration file
   🔹 Change the port number to the correct one

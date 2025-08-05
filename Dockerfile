@@ -36,9 +36,9 @@ RUN chmod +x /usr/local/bin/systemctl \
 
 RUN rm -rf /usr/local/setup/
 
-USER root
-RUN echo -e '#!/bin/sh\necho "sudo is disabled"; exit 1' > /usr/local/bin/sudo && \
-    chmod +x /usr/local/bin/sudo
+# USER root
+# RUN echo -e '#!/bin/sh\necho "sudo is disabled"; exit 1' > /usr/local/bin/sudo && \
+#     chmod +x /usr/local/bin/sudo
 
 USER student
 WORKDIR /home/student
